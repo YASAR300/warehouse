@@ -68,16 +68,54 @@ class AppState extends ChangeNotifier {
     _setLoading(true);
     
     try {
-      // Load from Google Sheets only - no static data
+      // Try to load from Google Sheets
       _containers = await _sheetsService.getContainers();
       debugPrint('Loaded ${_containers.length} containers from Google Sheets');
-      notifyListeners();
+      setOffline(false);
     } catch (e) {
-      debugPrint('Failed to load containers from Google Sheets: $e');
-      _containers = []; // Empty list if failed
-      notifyListeners();
+      debugPrint('Google Sheets not configured or offline: $e');
+      // Work in offline mode - load from local storage
+      await _loadContainersFromLocal();
+      setOffline(true);
     } finally {
       _setLoading(false);
+      notifyListeners();
+    }
+  }
+
+  /// Load containers from local storage
+  Future<void> _loadContainersFromLocal() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final containersJson = prefs.getString('local_containers');
+      
+      if (containersJson != null) {
+        final List<dynamic> containersList = json.decode(containersJson);
+        _containers = containersList
+            .map((json) => ContainerModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+        debugPrint('Loaded ${_containers.length} containers from local storage');
+      } else {
+        _containers = [];
+        debugPrint('No local containers found');
+      }
+    } catch (e) {
+      debugPrint('Failed to load local containers: $e');
+      _containers = [];
+    }
+  }
+
+  /// Save containers to local storage
+  Future<void> _saveContainersToLocal() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final containersJson = json.encode(
+        _containers.map((container) => container.toJson()).toList(),
+      );
+      await prefs.setString('local_containers', containersJson);
+      debugPrint('Saved ${_containers.length} containers to local storage');
+    } catch (e) {
+      debugPrint('Failed to save local containers: $e');
     }
   }
 
@@ -271,12 +309,20 @@ class AppState extends ChangeNotifier {
       // Add to offline queue
       await _addToOfflineQueue(completedContainer);
     } else {
-      // Save to Google Sheets and upload files
-      await _saveContainer(completedContainer);
+      // Try to save to Google Sheets and upload files
+      try {
+        await _saveContainer(completedContainer);
+      } catch (e) {
+        debugPrint('Failed to save to Google Sheets, adding to offline queue: $e');
+        await _addToOfflineQueue(completedContainer);
+      }
     }
     
     // Add to containers list
     _containers.add(completedContainer);
+    
+    // Save to local storage
+    await _saveContainersToLocal();
     
     // Clear current container
     _currentContainer = null;

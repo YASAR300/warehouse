@@ -43,17 +43,18 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
   Future<void> _initializeCamera() async {
     try {
       await _cameraService.initialize();
-      setState(() {
-        _isCameraInitialized = true;
-      });
-    } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to initialize camera: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        setState(() {
+          _isCameraInitialized = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Camera initialization failed: $e');
+      if (mounted) {
+        setState(() {
+          _isCameraInitialized = false;
+        });
+        // Don't show error - just work without camera
       }
     }
   }
@@ -88,8 +89,11 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
 
           return Column(
             children: [
-              // Camera preview with capture button
-              if (_isCameraInitialized) _buildCameraPreview(),
+              // Camera preview with capture button OR gallery-only mode
+              if (_isCameraInitialized) 
+                _buildCameraPreview()
+              else
+                _buildGalleryOnlyMode(),
               
               // Photo grid
               Expanded(
@@ -98,6 +102,63 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  /// Build gallery-only mode (when camera not available)
+  Widget _buildGalleryOnlyMode() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.blue, width: 2),
+      ),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.photo_library,
+            size: 64,
+            color: Colors.blue,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Camera Not Available',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Use gallery to add photos',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _pickFromGallery,
+            icon: const Icon(Icons.photo_library, size: 24),
+            label: const Text(
+              'SELECT FROM GALLERY',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              elevation: 4,
+            ),
+          ),
+        ],
       ),
     );
   }
