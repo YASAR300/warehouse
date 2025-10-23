@@ -49,7 +49,6 @@ class OfflineService {
   /// Handle connectivity restoration
   void _onConnectivityRestored() {
     // This would typically trigger a sync operation
-    print('Connectivity restored - ready to sync offline data');
   }
 
   /// Add container to offline queue
@@ -85,7 +84,6 @@ class OfflineService {
             .toList();
       }
     } catch (e) {
-      print('Failed to load offline queue: $e');
       _offlineQueue = [];
     }
   }
@@ -99,7 +97,7 @@ class OfflineService {
       );
       await prefs.setString(_offlineQueueKey, queueJson);
     } catch (e) {
-      print('Failed to save offline queue: $e');
+      // Failed to save offline queue
     }
   }
 
@@ -109,17 +107,7 @@ class OfflineService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_connectivityKey, isOnline);
     } catch (e) {
-      print('Failed to save connectivity status: $e');
-    }
-  }
-
-  /// Load last connectivity status
-  Future<bool> _loadLastConnectivityStatus() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getBool(_connectivityKey) ?? true;
-    } catch (e) {
-      return true; // Assume online by default
+      // Failed to save connectivity status
     }
   }
 

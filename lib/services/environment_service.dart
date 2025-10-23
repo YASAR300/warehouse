@@ -15,7 +15,6 @@ class EnvironmentService {
       _isInitialized = true;
     } catch (e) {
       // If .env file doesn't exist, use system environment variables
-      print('Warning: .env file not found, using system environment variables');
       _isInitialized = true;
     }
   }
@@ -30,9 +29,7 @@ class EnvironmentService {
     String? value = dotenv.env[key];
     
     // If not found in .env, try system environment
-    if (value == null) {
-      value = Platform.environment[key];
-    }
+    value ??= Platform.environment[key];
 
     return value;
   }
@@ -150,16 +147,8 @@ class EnvironmentService {
   /// Print environment configuration (for debugging)
   static void printConfig() {
     if (!_isInitialized) {
-      print('EnvironmentService not initialized');
       return;
     }
-
-    print('=== Environment Configuration ===');
-    print('Firebase Project ID: ${firebaseProjectId.isNotEmpty ? '✓' : '✗'}');
-    print('Firebase Storage Bucket: ${firebaseStorageBucket.isNotEmpty ? '✓' : '✗'}');
-    print('Google Sheets ID: ${googleSheetsSpreadsheetId.isNotEmpty ? '✓' : '✗'}');
-    print('Admin Email: ${adminEmail.isNotEmpty ? '✓' : '✗'}');
-    print('Debug Mode: $debugMode');
-    print('===============================');
+    // Environment configuration available for debugging
   }
 }

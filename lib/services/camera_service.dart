@@ -224,7 +224,6 @@ class CameraService {
       } catch (e) {
         // If processing fails, keep original path
         processedPaths.add(photoPath);
-        print('Failed to process photo $photoPath: $e');
       }
     }
 
@@ -275,7 +274,6 @@ class CameraService {
     try {
       // Note: setResolutionPreset is not available in this camera version
       // This is a placeholder for future implementation
-      print('Resolution setting not supported in current camera version');
     } catch (e) {
       throw Exception('Failed to set resolution: $e');
     }

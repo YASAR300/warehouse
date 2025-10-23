@@ -44,12 +44,14 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
         _isCameraInitialized = true;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to initialize camera: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to initialize camera: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -115,7 +117,7 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
   /// Build photo grid
   Widget _buildPhotoGrid(ContainerModel container) {
     if (container.photoPaths.isEmpty) {
-      return Center(
+      return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -124,16 +126,16 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
               size: 64,
               color: Colors.grey,
             ),
-            const SizedBox(height: 16),
-            const Text(
+            SizedBox(height: 16),
+            Text(
               'No photos taken yet',
               style: TextStyle(
                 fontSize: 18,
                 color: Colors.grey,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               'Tap the camera button to take photos',
               style: TextStyle(
                 fontSize: 14,
@@ -216,21 +218,25 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
       final photoPath = await _cameraService.takePhoto();
       final processedPath = await _cameraService.processPhoto(photoPath);
       
-      context.read<AppState>().addPhoto(processedPath);
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Photo taken successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (mounted) {
+        context.read<AppState>().addPhoto(processedPath);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Photo taken successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to take photo: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to take photo: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
       setState(() {
         _isLoading = false;
@@ -243,19 +249,23 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
     try {
       await _cameraService.rotatePhoto(photoPath, clockwise: clockwise);
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Photo rotated ${clockwise ? 'clockwise' : 'counterclockwise'}'),
-          backgroundColor: Colors.blue,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Photo rotated ${clockwise ? 'clockwise' : 'counterclockwise'}'),
+            backgroundColor: Colors.blue,
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to rotate photo: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to rotate photo: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

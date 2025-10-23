@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -113,20 +112,20 @@ class PdfService {
               ),
               pw.Text(
                 'Date: ${DateTime.now().toString().split(' ')[0]}',
-                style: pw.TextStyle(fontSize: 14),
+                style: const pw.TextStyle(fontSize: 14),
               ),
             ],
           ),
           pw.SizedBox(height: 5),
           pw.Text(
             'Type: ${container.type.displayName}',
-            style: pw.TextStyle(fontSize: 14),
+            style: const pw.TextStyle(fontSize: 14),
           ),
           if (container.doorNumber != null) ...[
             pw.SizedBox(height: 5),
             pw.Text(
               'Door #: ${container.doorNumber}',
-              style: pw.TextStyle(fontSize: 14),
+              style: const pw.TextStyle(fontSize: 14),
             ),
           ],
         ],
@@ -300,7 +299,7 @@ class PdfService {
                       ),
                       pw.Text(
                         '   Reported: ${discrepancy.timestamp.toString().split(' ')[0]}',
-                        style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
+                        style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
                       ),
                     ],
                   ),
@@ -352,12 +351,6 @@ class PdfService {
     );
   }
 
-  /// Load image bytes from file path
-  Future<Uint8List> _loadImageBytes(String imagePath) async {
-    final file = File(imagePath);
-    return await file.readAsBytes();
-  }
-
   /// Build report footer
   pw.Widget _buildFooter(ContainerModel container) {
     return pw.Container(
@@ -371,7 +364,7 @@ class PdfService {
         children: [
           pw.Text(
             'Report Generated: ${DateTime.now().toString()}',
-            style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
+            style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
           ),
           pw.SizedBox(height: 5),
           pw.Text(
@@ -386,7 +379,7 @@ class PdfService {
             pw.SizedBox(height: 5),
             pw.Text(
               'Shareable Link: ${container.shareableLink}',
-              style: pw.TextStyle(fontSize: 10, color: PdfColors.blue600),
+              style: const pw.TextStyle(fontSize: 10, color: PdfColors.blue600),
             ),
           ],
         ],

@@ -222,7 +222,7 @@ class BoxStorageService {
       
       return null;
     } catch (e) {
-      print('Error getting folder by name: $e');
+      // Error getting folder by name
       return null;
     }
   }
@@ -313,10 +313,10 @@ class BoxStorageService {
       );
       
       if (response.statusCode != 204) {
-        print('Failed to delete file: ${response.statusCode}');
+        // Failed to delete file
       }
     } catch (e) {
-      print('Failed to delete file from Box: $e');
+      // Failed to delete file from Box
     }
   }
 
@@ -331,10 +331,10 @@ class BoxStorageService {
       );
       
       if (response.statusCode != 204) {
-        print('Failed to delete folder: ${response.statusCode}');
+        // Failed to delete folder
       }
     } catch (e) {
-      print('Failed to delete folder from Box: $e');
+      // Failed to delete folder from Box
     }
   }
 

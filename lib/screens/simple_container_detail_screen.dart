@@ -140,10 +140,10 @@ class _SimpleContainerDetailScreenState extends State<SimpleContainerDetailScree
             ),
             if (container.discrepancies.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Row(
+              const Row(
                 children: [
-                  const Icon(Icons.warning, color: Colors.red, size: 16),
-                  const SizedBox(width: 4),
+                  Icon(Icons.warning, color: Colors.red, size: 16),
+                  SizedBox(width: 4),
                   Text(
                     'Has Discrepancies',
                     style: TextStyle(
@@ -240,7 +240,7 @@ class _SimpleContainerDetailScreenState extends State<SimpleContainerDetailScree
                     },
                   ),
                 ),
-              ).toList(),
+              ),
           ],
         ),
       ),
@@ -339,7 +339,7 @@ class _SimpleContainerDetailScreenState extends State<SimpleContainerDetailScree
                     ),
                   ),
                 ),
-              ).toList(),
+              ),
           ],
         ),
       ),

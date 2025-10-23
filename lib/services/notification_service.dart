@@ -294,5 +294,4 @@ class NotificationService {
 /// Background message handler for Firebase Cloud Messaging
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Handle background messages here
-  print('Handling background message: ${message.messageId}');
 }

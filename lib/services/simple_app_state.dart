@@ -57,7 +57,7 @@ class SimpleContainer {
 class SimpleAppState extends ChangeNotifier {
   List<SimpleContainer> _containers = [];
   SimpleContainer? _currentContainer;
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   // Getters
   List<SimpleContainer> get containers => _containers;

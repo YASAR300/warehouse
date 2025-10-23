@@ -14,14 +14,14 @@ void main() async {
   try {
     cameras = await availableCameras();
   } catch (e) {
-    print('Error initializing cameras: $e');
+    // Error initializing cameras - silently continue
   }
   
   // Initialize Firebase
   try {
     await Firebase.initializeApp();
   } catch (e) {
-    print('Error initializing Firebase: $e');
+    // Error initializing Firebase - silently continue
   }
   
   runApp(

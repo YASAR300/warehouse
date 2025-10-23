@@ -79,8 +79,7 @@ class StorageService {
         await ref.delete();
       }
     } catch (e) {
-      // Log error but don't fail the operation
-      print('Failed to delete some photos: $e');
+      // Failed to delete some photos - continue anyway
     }
   }
 
@@ -90,7 +89,7 @@ class StorageService {
       final ref = _storage.refFromURL(pdfUrl);
       await ref.delete();
     } catch (e) {
-      print('Failed to delete PDF report: $e');
+      // Failed to delete PDF report
     }
   }
 
@@ -168,7 +167,7 @@ class StorageService {
         }
       }
     } catch (e) {
-      print('Failed to cleanup temp files: $e');
+      // Failed to cleanup temp files
     }
   }
 }

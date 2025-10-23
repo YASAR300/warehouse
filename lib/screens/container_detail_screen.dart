@@ -160,10 +160,10 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
             ),
             if (container.hasDiscrepancies) ...[
               const SizedBox(height: 8),
-              Row(
+              const Row(
                 children: [
-                  const Icon(Icons.warning, color: Colors.red, size: 16),
-                  const SizedBox(width: 4),
+                  Icon(Icons.warning, color: Colors.red, size: 16),
+                  SizedBox(width: 4),
                   Text(
                     'Has Discrepancies',
                     style: TextStyle(
@@ -260,7 +260,7 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
                     },
                   ),
                 );
-              }).toList(),
+              }),
           ],
         ),
       ),
@@ -354,7 +354,7 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
           ],
         ),
       ),
@@ -550,11 +550,13 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
-              Navigator.pop(context);
+              final navigator = Navigator.of(context);
+              final messenger = ScaffoldMessenger.of(context);
+              navigator.pop();
               await context.read<AppState>().completeContainer();
               if (mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
+                navigator.pop();
+                messenger.showSnackBar(
                   const SnackBar(
                     content: Text('Container completed successfully!'),
                     backgroundColor: Colors.green,

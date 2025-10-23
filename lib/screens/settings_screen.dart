@@ -133,10 +133,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSection(
             title: 'App Information',
             children: [
-              ListTile(
-                leading: const Icon(Icons.info),
-                title: const Text('Version'),
-                subtitle: const Text('1.0.0'),
+              const ListTile(
+                leading: Icon(Icons.info),
+                title: Text('Version'),
+                subtitle: Text('1.0.0'),
               ),
               ListTile(
                 leading: const Icon(Icons.description),
@@ -257,6 +257,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: () async {
               Navigator.pop(context);
               // Show loading indicator
+              final navigator = Navigator.of(context);
+              final messenger = ScaffoldMessenger.of(context);
+              
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -267,23 +270,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
               
               try {
                 await context.read<AppState>().syncOfflineQueue();
-                Navigator.pop(context); // Close loading dialog
-                
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Offline data synced successfully!'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                if (mounted) {
+                  navigator.pop(); // Close loading dialog
+                  
+                  messenger.showSnackBar(
+                    const SnackBar(
+                      content: Text('Offline data synced successfully!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
               } catch (e) {
-                Navigator.pop(context); // Close loading dialog
-                
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to sync data: $e'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
+                if (mounted) {
+                  navigator.pop(); // Close loading dialog
+                  
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to sync data: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
               }
             },
             child: const Text('Sync'),

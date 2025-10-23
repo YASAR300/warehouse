@@ -204,8 +204,7 @@ class GoogleSheetsService {
         _spreadsheetId,
       );
     } catch (e) {
-      // Log error but don't fail the main operation
-      print('Failed to update row formatting: $e');
+      // Failed to update row formatting - continue anyway
     }
   }
 
