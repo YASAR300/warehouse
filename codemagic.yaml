@@ -91,7 +91,6 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
       - flutter_drive.log
     publishing:
-      app_store:
-        auth: integration
+      app_store_connect:
         submit_to_testflight: true
         submit_to_app_store: false
