@@ -14,22 +14,25 @@ void main() async {
   // Load .env file
   try {
     await dotenv.load(fileName: ".env");
+    debugPrint('Environment file loaded successfully');
   } catch (e) {
-    // .env file not found - will use system environment variables
+    debugPrint('Warning: .env file not found - will use system environment variables');
   }
   
   // Initialize cameras
   try {
     cameras = await availableCameras();
+    debugPrint('Cameras initialized: ${cameras.length} camera(s) found');
   } catch (e) {
-    // Error initializing cameras - silently continue
+    debugPrint('Warning: Error initializing cameras - $e');
   }
   
   // Initialize Firebase
   try {
     await Firebase.initializeApp();
+    debugPrint('Firebase initialized successfully');
   } catch (e) {
-    // Error initializing Firebase - silently continue
+    debugPrint('Warning: Error initializing Firebase - $e');
   }
   
   runApp(

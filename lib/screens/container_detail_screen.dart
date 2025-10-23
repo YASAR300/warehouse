@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/app_state.dart';
@@ -364,6 +365,7 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
   /// Build photos section
   Widget _buildPhotosSection(models.ContainerModel container) {
     return Card(
+      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -372,13 +374,29 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Photos (${container.photoPaths.length})',
-                  style: Theme.of(context).textTheme.titleMedium,
+                Row(
+                  children: [
+                    const Icon(Icons.photo_camera, color: Colors.blue),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Photos (${container.photoPaths.length})',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-                TextButton.icon(
-                  icon: const Icon(Icons.camera_alt),
-                  label: const Text('Take Photo'),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.add_a_photo, size: 20),
+                  label: const Text('Add Photos'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -425,13 +443,7 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.asset(
-                              'assets/images/placeholder.png', // Placeholder
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(Icons.image);
-                              },
-                            ),
+                            child: _buildThumbnail(container.photoPaths[index]),
                           ),
                         ),
                       ),
@@ -574,5 +586,21 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
   /// Format date for display
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
+  /// Build thumbnail widget
+  Widget _buildThumbnail(String photoPath) {
+    final file = File(photoPath);
+    if (file.existsSync()) {
+      return Image.file(
+        file,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(Icons.broken_image, color: Colors.red);
+        },
+      );
+    } else {
+      return const Icon(Icons.image_not_supported, color: Colors.grey);
+    }
   }
 }

@@ -68,11 +68,14 @@ class AppState extends ChangeNotifier {
     _setLoading(true);
     
     try {
-      // This would typically load from Google Sheets service
-      // For now, we'll use mock data
-      _containers = _getMockContainers();
+      // Load from Google Sheets only - no static data
+      _containers = await _sheetsService.getContainers();
+      debugPrint('Loaded ${_containers.length} containers from Google Sheets');
+      notifyListeners();
     } catch (e) {
-      debugPrint('Failed to load containers: $e');
+      debugPrint('Failed to load containers from Google Sheets: $e');
+      _containers = []; // Empty list if failed
+      notifyListeners();
     } finally {
       _setLoading(false);
     }
@@ -468,31 +471,6 @@ class AppState extends ChangeNotifier {
     _isOffline = false;
   }
 
-  /// Get mock containers for testing
-  List<ContainerModel> _getMockContainers() {
-    return [
-      ContainerModel(
-        containerNumber: 'CONT001',
-        type: ContainerType.import,
-        doorNumber: 'Door 1',
-        isCompleted: true,
-        completedAt: DateTime.now().subtract(const Duration(days: 1)),
-      ),
-      ContainerModel(
-        containerNumber: 'CONT002',
-        type: ContainerType.export,
-        doorNumber: 'Door 2',
-        isCompleted: false,
-      ),
-      ContainerModel(
-        containerNumber: 'CONT003',
-        type: ContainerType.delivery,
-        doorNumber: 'Door 3',
-        isCompleted: true,
-        completedAt: DateTime.now().subtract(const Duration(hours: 5)),
-      ),
-    ];
-  }
 
   /// Get container by number
   ContainerModel? getContainerByNumber(String containerNumber) {

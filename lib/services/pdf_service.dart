@@ -323,28 +323,60 @@ class PdfService {
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Text(
-            'PHOTOS',
+            'PHOTOS (${photoPaths.length})',
             style: pw.TextStyle(
               fontSize: 16,
               fontWeight: pw.FontWeight.bold,
               color: PdfColors.blue800,
             ),
           ),
+          pw.SizedBox(height: 10),
           if (photoPaths.isEmpty)
             pw.Text('No photos attached')
           else
             pw.Wrap(
-              children: photoPaths.map(
-                (photoPath) => pw.Container(
-                  margin: const pw.EdgeInsets.all(5),
-                  width: 100,
-                  height: 100,
+              spacing: 10,
+              runSpacing: 10,
+              children: photoPaths.asMap().entries.map((entry) {
+                final index = entry.key;
+                final photoPath = entry.value;
+                
+                try {
+                  final file = File(photoPath);
+                  if (file.existsSync()) {
+                    final imageBytes = file.readAsBytesSync();
+                    final image = pw.MemoryImage(imageBytes);
+                    
+                    return pw.Container(
+                      width: 150,
+                      height: 150,
+                      child: pw.Column(
+                        children: [
+                          pw.Expanded(
+                            child: pw.Image(image, fit: pw.BoxFit.cover),
+                          ),
+                          pw.SizedBox(height: 2),
+                          pw.Text(
+                            'Photo ${index + 1}',
+                            style: const pw.TextStyle(fontSize: 8),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  // If image fails to load, show placeholder
+                }
+                
+                return pw.Container(
+                  width: 150,
+                  height: 150,
                   color: PdfColors.grey200,
                   child: pw.Center(
-                    child: pw.Text('Photo'),
+                    child: pw.Text('Photo ${index + 1}\n(Not available)'),
                   ),
-                ),
-              ).toList(),
+                );
+              }).toList(),
             ),
         ],
       ),

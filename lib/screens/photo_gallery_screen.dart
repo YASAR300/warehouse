@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:camera/camera.dart';
+import 'package:image_picker/image_picker.dart';
 import '../services/app_state.dart';
 import '../services/camera_service.dart';
 import '../models/container_model.dart';
@@ -21,6 +23,7 @@ class PhotoGalleryScreen extends StatefulWidget {
 
 class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
   final CameraService _cameraService = CameraService();
+  final ImagePicker _imagePicker = ImagePicker();
   bool _isCameraInitialized = false;
   bool _isLoading = false;
 
@@ -62,8 +65,9 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
         title: const Text('Photos'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.camera_alt),
-            onPressed: _isCameraInitialized ? _takePhoto : null,
+            icon: const Icon(Icons.photo_library),
+            onPressed: _pickFromGallery,
+            tooltip: 'Pick from Gallery',
           ),
         ],
       ),
@@ -84,7 +88,7 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
 
           return Column(
             children: [
-              // Camera preview
+              // Camera preview with capture button
               if (_isCameraInitialized) _buildCameraPreview(),
               
               // Photo grid
@@ -98,18 +102,90 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
     );
   }
 
-  /// Build camera preview
+  /// Build camera preview with capture button
   Widget _buildCameraPreview() {
     return Container(
-      height: 200,
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.2),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: CameraPreview(_cameraService.controller!),
+      child: Column(
+        children: [
+          // Camera preview
+          Container(
+            height: 250,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              border: Border.all(color: Colors.blue, width: 2),
+            ),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+              child: CameraPreview(_cameraService.controller!),
+            ),
+          ),
+          // Capture button
+          Container(
+            decoration: const BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Flash toggle
+                IconButton(
+                  icon: Icon(
+                    _cameraService.getFlashMode() == FlashMode.off
+                        ? Icons.flash_off
+                        : _cameraService.getFlashMode() == FlashMode.auto
+                            ? Icons.flash_auto
+                            : Icons.flash_on,
+                    color: Colors.white,
+                  ),
+                  onPressed: () async {
+                    await _cameraService.toggleFlash();
+                    setState(() {});
+                  },
+                  tooltip: 'Toggle Flash',
+                ),
+                // Capture button
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  child: ElevatedButton.icon(
+                    onPressed: _takePhoto,
+                    icon: const Icon(Icons.camera, size: 28),
+                    label: const Text(
+                      'CAPTURE PHOTO',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.blue,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      elevation: 4,
+                    ),
+                  ),
+                ),
+                // Gallery button
+                IconButton(
+                  icon: const Icon(Icons.photo_library, color: Colors.white),
+                  onPressed: _pickFromGallery,
+                  tooltip: 'Pick from Gallery',
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -136,7 +212,7 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
             ),
             SizedBox(height: 8),
             Text(
-              'Tap the camera button to take photos',
+              'Use the camera preview above or gallery button',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey,
@@ -175,13 +251,7 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              'assets/images/placeholder.png', // Placeholder
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.image);
-              },
-            ),
+            child: _buildPhotoImage(photoPath),
           ),
         ),
         title: Text('Photo ${index + 1}'),
@@ -206,6 +276,56 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
         onTap: () => _showPhotoViewer(photoPath, index),
       ),
     );
+  }
+
+  /// Build photo image widget
+  Widget _buildPhotoImage(String photoPath) {
+    final file = File(photoPath);
+    if (file.existsSync()) {
+      return Image.file(
+        file,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(Icons.broken_image, color: Colors.red);
+        },
+      );
+    } else {
+      return const Icon(Icons.image_not_supported, color: Colors.grey);
+    }
+  }
+
+  /// Pick photo from gallery
+  Future<void> _pickFromGallery() async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null && mounted) {
+        context.read<AppState>().addPhoto(pickedFile.path);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Photo added from gallery!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to pick photo: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   /// Take photo
@@ -354,19 +474,33 @@ class PhotoViewerScreen extends StatelessWidget {
       backgroundColor: Colors.black,
       body: Center(
         child: InteractiveViewer(
-          child: Image.asset(
-            'assets/images/placeholder.png', // Placeholder
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) {
-              return const Icon(
-                Icons.image,
-                size: 100,
-                color: Colors.white,
-              );
-            },
-          ),
+          child: _buildFullImage(photoPath),
         ),
       ),
     );
+  }
+
+  /// Build full image widget
+  Widget _buildFullImage(String photoPath) {
+    final file = File(photoPath);
+    if (file.existsSync()) {
+      return Image.file(
+        file,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(
+            Icons.broken_image,
+            size: 100,
+            color: Colors.white,
+          );
+        },
+      );
+    } else {
+      return const Icon(
+        Icons.image_not_supported,
+        size: 100,
+        color: Colors.white,
+      );
+    }
   }
 }
