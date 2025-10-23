@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/container_model.dart';
+import 'google_sheets_service.dart';
+import 'pdf_service.dart';
+import 'storage_service.dart';
 
 /// Main app state management using Provider
 class AppState extends ChangeNotifier {
@@ -11,6 +14,11 @@ class AppState extends ChangeNotifier {
   bool _isOffline = false;
   List<ContainerModel> _offlineQueue = [];
   String? _adminEmail;
+  
+  // Services
+  final GoogleSheetsService _sheetsService = GoogleSheetsService();
+  final PdfService _pdfService = PdfService();
+  final StorageService _storageService = StorageService();
 
   // Getters
   List<ContainerModel> get containers => _containers;
@@ -74,13 +82,14 @@ class AppState extends ChangeNotifier {
   }
 
   /// Create new container
-  void createNewContainer(String containerNumber, ContainerType type) {
+  Future<void> createNewContainer(String containerNumber, ContainerType type) async {
     final container = ContainerModel(
       containerNumber: containerNumber,
       type: type,
     );
     
     _currentContainer = container;
+    await _saveCurrentContainer();
     notifyListeners();
   }
 
@@ -173,29 +182,8 @@ class AppState extends ChangeNotifier {
     
     final updatedContainer = _currentContainer!.copyWith(
       discrepancies: discrepancies,
-    );
-    
-    _currentContainer = updatedContainer;
-    notifyListeners();
-  }
-
-  /// Add photo to current container
-  void addPhoto(String photoPath) {
-    if (_currentContainer == null) return;
-    
-    final photoPaths = List<String>.from(_currentContainer!.photoPaths);
-    photoPaths.add(photoPath);
-    
-    final updatedContainer = _currentContainer!.copyWith(
-      photoPaths: photoPaths,
-    );
-    
-    _currentContainer = updatedContainer;
-    notifyListeners();
-  }
-
   /// Remove photo from current container
-  void removePhoto(int index) {
+  Future<void> removePhoto(int index) async {
     if (_currentContainer == null || index < 0 || index >= _currentContainer!.photoPaths.length) return;
     
     final photoPaths = List<String>.from(_currentContainer!.photoPaths);
@@ -230,7 +218,7 @@ class AppState extends ChangeNotifier {
   }
 
   /// Set door number
-  void setDoorNumber(String doorNumber) {
+  Future<void> setDoorNumber(String doorNumber) async {
     if (_currentContainer == null) return;
     
     final updatedContainer = _currentContainer!.copyWith(
@@ -238,6 +226,7 @@ class AppState extends ChangeNotifier {
     );
     
     _currentContainer = updatedContainer;
+    await _saveCurrentContainer();
     notifyListeners();
   }
 
@@ -263,23 +252,64 @@ class AppState extends ChangeNotifier {
     
     // Clear current container
     _currentContainer = null;
+    await _clearCurrentContainer();
     notifyListeners();
   }
 
   /// Save container to Google Sheets and upload files
   Future<void> _saveContainer(ContainerModel container) async {
     try {
-      // This would typically:
-      // 1. Generate PDF report
-      // 2. Upload photos and PDF to Firebase Storage
-      // 3. Update Google Sheets
-      // 4. Send notifications if needed
-      
       debugPrint('Saving container: ${container.containerNumber}');
+      
+      // 1. Upload photos to Firebase Storage
+      final uploadedPhotos = <String>[];
+      for (final photoPath in container.photoPaths) {
+        try {
+          final photoUrl = await _storageService.uploadPhoto(
+            containerNumber: container.containerNumber,
+            photoPath: photoPath,
+          );
+          uploadedPhotos.add(photoUrl);
+        } catch (e) {
+          debugPrint('Failed to upload photo: $e');
+        }
+      }
+      
+      // 2. Generate PDF report
+      String? pdfUrl;
+      try {
+        final pdfPath = await _pdfService.generateReport(
+          container: container,
+          photoPaths: container.photoPaths,
+        );
+        pdfUrl = await _storageService.uploadPdfReport(
+          containerNumber: container.containerNumber,
+          pdfPath: pdfPath,
+        );
+      } catch (e) {
+        debugPrint('Failed to generate/upload PDF: $e');
+      }
+      
+      // 3. Update container with URLs
+      final updatedContainer = container.copyWith(
+        photoPaths: uploadedPhotos.isNotEmpty ? uploadedPhotos : container.photoPaths,
+        shareableLink: pdfUrl,
+      );
+      
+      // 4. Save to Google Sheets
+      try {
+        await _sheetsService.addContainer(updatedContainer);
+        debugPrint('Container saved to Google Sheets successfully');
+      } catch (e) {
+        debugPrint('Failed to save to Google Sheets: $e');
+        throw e; // Re-throw to trigger offline queue
+      }
+      
     } catch (e) {
       debugPrint('Failed to save container: $e');
       // Add to offline queue if save fails
       await _addToOfflineQueue(container);
+      rethrow;
     }
   }
 
@@ -363,6 +393,46 @@ class AppState extends ChangeNotifier {
       await prefs.setString('admin_email', _adminEmail ?? '');
     } catch (e) {
       debugPrint('Failed to save admin email: $e');
+    }
+  }
+
+  /// Load current container from SharedPreferences
+  Future<void> _loadCurrentContainer() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final containerJson = prefs.getString('current_container');
+      if (containerJson != null && containerJson.isNotEmpty) {
+        final containerMap = json.decode(containerJson) as Map<String, dynamic>;
+        _currentContainer = ContainerModel.fromJson(containerMap);
+        debugPrint('Loaded current container: ${_currentContainer?.containerNumber}');
+      }
+    } catch (e) {
+      debugPrint('Failed to load current container: $e');
+    }
+  }
+
+  /// Save current container to SharedPreferences
+  Future<void> _saveCurrentContainer() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (_currentContainer != null) {
+        final containerJson = json.encode(_currentContainer!.toJson());
+        await prefs.setString('current_container', containerJson);
+        debugPrint('Saved current container: ${_currentContainer?.containerNumber}');
+      }
+    } catch (e) {
+      debugPrint('Failed to save current container: $e');
+    }
+  }
+
+  /// Clear current container from SharedPreferences
+  Future<void> _clearCurrentContainer() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('current_container');
+      debugPrint('Cleared current container');
+    } catch (e) {
+      debugPrint('Failed to clear current container: $e');
     }
   }
 

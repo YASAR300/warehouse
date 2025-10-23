@@ -6,7 +6,7 @@ import '../models/container_model.dart';
 
 /// Service for interacting with Google Sheets API
 class GoogleSheetsService {
-  static const String _spreadsheetId = 'YOUR_SPREADSHEET_ID'; // Replace with actual ID
+  String? _spreadsheetId;
   static const String _range = 'Sheet1!A:Z'; // Adjust range as needed
   
   sheets.SheetsApi? _sheetsApi;
@@ -17,6 +17,12 @@ class GoogleSheetsService {
     if (_isInitialized) return;
 
     try {
+      // Load spreadsheet ID from environment
+      _spreadsheetId = Platform.environment['GOOGLE_SHEETS_SPREADSHEET_ID'];
+      if (_spreadsheetId == null || _spreadsheetId!.isEmpty) {
+        throw Exception('Google Sheets Spreadsheet ID not configured');
+      }
+      
       // Load service account credentials from assets
       final credentials = await _loadServiceAccountCredentials();
       
@@ -57,7 +63,7 @@ class GoogleSheetsService {
     
     try {
       final response = await _sheetsApi!.spreadsheets.values.get(
-        _spreadsheetId,
+        _spreadsheetId!,
         _range,
       );
 
@@ -121,7 +127,7 @@ class GoogleSheetsService {
         sheets.ValueRange(
           values: [updateData],
         ),
-        _spreadsheetId,
+        _spreadsheetId!,
         'Sheet1!A${rowIndex + 1}:Z${rowIndex + 1}',
         valueInputOption: 'RAW',
       );
@@ -138,7 +144,7 @@ class GoogleSheetsService {
   /// Find the row index for a container number
   Future<int> _findContainerRow(String containerNumber) async {
     final response = await _sheetsApi!.spreadsheets.values.get(
-      _spreadsheetId,
+      _spreadsheetId!,
       'Sheet1!A:A',
     );
 
@@ -201,7 +207,7 @@ class GoogleSheetsService {
 
       await _sheetsApi!.spreadsheets.batchUpdate(
         sheets.BatchUpdateSpreadsheetRequest(requests: requests),
-        _spreadsheetId,
+        _spreadsheetId!,
       );
     } catch (e) {
       // Failed to update row formatting - continue anyway
@@ -217,7 +223,7 @@ class GoogleSheetsService {
       
       await _sheetsApi!.spreadsheets.values.append(
         sheets.ValueRange(values: [updateData]),
-        _spreadsheetId,
+        _spreadsheetId!,
         'Sheet1!A:Z',
         valueInputOption: 'RAW',
         insertDataOption: 'INSERT_ROWS',

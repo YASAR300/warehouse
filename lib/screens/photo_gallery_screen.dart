@@ -210,6 +210,18 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
 
   /// Take photo
   Future<void> _takePhoto() async {
+    if (!_isCameraInitialized) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Camera not initialized. Please wait...'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -225,6 +237,7 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
           const SnackBar(
             content: Text('Photo taken successfully!'),
             backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
           ),
         );
       }
@@ -234,13 +247,16 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
           SnackBar(
             content: Text('Failed to take photo: $e'),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
           ),
         );
       }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

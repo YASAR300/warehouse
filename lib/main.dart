@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:camera/camera.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/home_screen.dart';
 import 'services/app_state.dart';
 
@@ -9,6 +10,13 @@ List<CameraDescription> cameras = [];
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Load .env file
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    // .env file not found - will use system environment variables
+  }
   
   // Initialize cameras
   try {
