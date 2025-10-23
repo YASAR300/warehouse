@@ -66,7 +66,7 @@
     <string name="dunnage">Dunnage</string>
     
     <!-- Container Types -->
-    <string name="import">Import</string>
-    <string name="export">Export</string>
-    <string name="delivery">Delivery</string>
+    <string name="container_import">Import</string>
+    <string name="container_export">Export</string>
+    <string name="container_delivery">Delivery</string>
 </resources>
