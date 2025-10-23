@@ -6,7 +6,6 @@ workflows:
     environment:
       flutter: stable
       groups:
-        - google_play
         - app_store_credentials
     scripts:
       - name: Set up local.properties
