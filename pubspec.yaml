@@ -43,6 +43,12 @@ dependencies:
   # Permissions
   permission_handler: ^11.0.1
 
+  # Connectivity
+  connectivity_plus: ^5.0.2
+
+  # Email
+  flutter_email_sender: ^6.0.2
+
   # Environment
   flutter_dotenv: ^5.1.0
 
@@ -55,5 +61,3 @@ flutter:
   
   assets:
     - assets/images/
-    - assets/config/
-    - .env
