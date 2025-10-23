@@ -6,6 +6,26 @@ import 'package:path/path.dart' as path;
 class StorageService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   
+  /// Upload single photo to Firebase Storage
+  Future<String> uploadPhoto({
+    required String containerNumber,
+    required String photoPath,
+  }) async {
+    try {
+      final photoFile = File(photoPath);
+      final fileName = '${containerNumber}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final ref = _storage.ref().child('containers/$containerNumber/photos/$fileName');
+      
+      final uploadTask = ref.putFile(photoFile);
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+      
+      return downloadUrl;
+    } catch (e) {
+      throw Exception('Failed to upload photo: $e');
+    }
+  }
+
   /// Upload photos to Firebase Storage
   Future<List<String>> uploadPhotos({
     required String containerNumber,

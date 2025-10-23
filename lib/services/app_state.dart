@@ -36,6 +36,9 @@ class AppState extends ChangeNotifier {
       // Load offline queue
       await _loadOfflineQueue();
       
+      // Load current container (if any)
+      await _loadCurrentContainer();
+      
       // Load admin email
       await _loadAdminEmail();
       
@@ -182,6 +185,28 @@ class AppState extends ChangeNotifier {
     
     final updatedContainer = _currentContainer!.copyWith(
       discrepancies: discrepancies,
+    );
+    
+    _currentContainer = updatedContainer;
+    notifyListeners();
+  }
+
+  /// Add photo to current container
+  Future<void> addPhoto(String photoPath) async {
+    if (_currentContainer == null) return;
+    
+    final photoPaths = List<String>.from(_currentContainer!.photoPaths);
+    photoPaths.add(photoPath);
+    
+    final updatedContainer = _currentContainer!.copyWith(
+      photoPaths: photoPaths,
+    );
+    
+    _currentContainer = updatedContainer;
+    await _saveCurrentContainer();
+    notifyListeners();
+  }
+
   /// Remove photo from current container
   Future<void> removePhoto(int index) async {
     if (_currentContainer == null || index < 0 || index >= _currentContainer!.photoPaths.length) return;
@@ -302,7 +327,7 @@ class AppState extends ChangeNotifier {
         debugPrint('Container saved to Google Sheets successfully');
       } catch (e) {
         debugPrint('Failed to save to Google Sheets: $e');
-        throw e; // Re-throw to trigger offline queue
+        rethrow; // Re-throw to trigger offline queue
       }
       
     } catch (e) {
@@ -469,14 +494,6 @@ class AppState extends ChangeNotifier {
     ];
   }
 
-  /// Clear all data
-  void clearAllData() {
-    _containers.clear();
-    _currentContainer = null;
-    _offlineQueue.clear();
-    notifyListeners();
-  }
-
   /// Get container by number
   ContainerModel? getContainerByNumber(String containerNumber) {
     try {
@@ -496,5 +513,17 @@ class AppState extends ChangeNotifier {
   /// Get completed containers
   List<ContainerModel> get completedContainers {
     return _containers.where((container) => container.isCompleted).toList();
+  }
+
+  /// Clear all data
+  Future<void> clearAllData() async {
+    _containers.clear();
+    _currentContainer = null;
+    _offlineQueue.clear();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    notifyListeners();
   }
 }
