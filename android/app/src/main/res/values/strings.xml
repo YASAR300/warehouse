@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App name -->
+    <string name="app_name">Warehouse Container Tracker</string>
+    
+    <!-- Permissions -->
+    <string name="camera_permission">Camera permission is required to take photos</string>
+    <string name="storage_permission">Storage permission is required to save photos</string>
+    <string name="permission_denied">Permission denied</string>
+    <string name="permission_granted">Permission granted</string>
+    
+    <!-- Camera -->
+    <string name="camera_error">Camera error occurred</string>
+    <string name="photo_taken">Photo taken successfully</string>
+    <string name="photo_failed">Failed to take photo</string>
+    
+    <!-- Container -->
+    <string name="container_number">Container Number</string>
+    <string name="container_type">Container Type</string>
+    <string name="door_number">Door Number</string>
+    <string name="piece_count">Piece Count</string>
+    <string name="materials_supplied">Materials Supplied</string>
+    <string name="discrepancies">Discrepancies</string>
+    <string name="photos">Photos</string>
+    
+    <!-- Status -->
+    <string name="completed">Completed</string>
+    <string name="in_progress">In Progress</string>
+    <string name="pending">Pending</string>
+    
+    <!-- Actions -->
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="add">Add</string>
+    <string name="complete">Complete</string>
+    
+    <!-- Messages -->
+    <string name="container_completed">Container completed successfully</string>
+    <string name="data_synced">Data synced successfully</string>
+    <string name="offline_mode">Offline mode - data will sync when online</string>
+    <string name="sync_failed">Sync failed</string>
+    
+    <!-- Errors -->
+    <string name="error_generic">An error occurred</string>
+    <string name="error_network">Network error</string>
+    <string name="error_camera">Camera error</string>
+    <string name="error_storage">Storage error</string>
+    
+    <!-- Package Types -->
+    <string name="crates">Crates</string>
+    <string name="pallets">Pallets</string>
+    <string name="coils">Coils</string>
+    <string name="reels">Reels</string>
+    <string name="bundles">Bundles</string>
+    <string name="cartons">Cartons</string>
+    <string name="car">Car</string>
+    <string name="bike">Bike</string>
+    <string name="boat">Boat</string>
+    <string name="other">Other</string>
+    
+    <!-- Materials -->
+    <string name="shrink_wrap">Shrink Wrap</string>
+    <string name="air_bags">Air Bags</string>
+    <string name="dunnage">Dunnage</string>
+    
+    <!-- Container Types -->
+    <string name="import">Import</string>
+    <string name="export">Export</string>
+    <string name="delivery">Delivery</string>
+</resources>
