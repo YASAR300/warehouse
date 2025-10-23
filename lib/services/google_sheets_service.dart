@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:googleapis/sheets/v4.dart' as sheets;
 import 'package:googleapis_auth/auth_io.dart';
-import 'package:http/http.dart' as http;
 import '../models/container_model.dart';
 
 /// Service for interacting with Google Sheets API

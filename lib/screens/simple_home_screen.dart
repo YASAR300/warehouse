@@ -272,7 +272,7 @@ class _SimpleHomeScreenState extends State<SimpleHomeScreen> with TickerProvider
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: selectedType,
+                initialValue: selectedType,
                 decoration: const InputDecoration(
                   labelText: 'Type',
                 ),

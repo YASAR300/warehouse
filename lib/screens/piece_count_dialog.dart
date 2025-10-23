@@ -55,7 +55,7 @@ class _PieceCountDialogState extends State<PieceCountDialog> {
             
             // Package type dropdown
             DropdownButtonFormField<PackageType>(
-              value: _selectedPackageType,
+              initialValue: _selectedPackageType,
               decoration: const InputDecoration(
                 labelText: 'Package Type',
                 border: OutlineInputBorder(),

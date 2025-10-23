@@ -331,41 +331,22 @@ class PdfService {
               color: PdfColors.blue800,
             ),
           ),
-          pw.SizedBox(height: 10),
           if (photoPaths.isEmpty)
             pw.Text('No photos attached')
           else
             pw.Wrap(
-              children: photoPaths.map((photoPath) => 
-                pw.Container(
+              children: photoPaths.map(
+                (photoPath) => pw.Container(
                   margin: const pw.EdgeInsets.all(5),
-                  child: pw.FutureBuilder<Uint8List>(
-                    future: _loadImageBytes(photoPath),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return pw.Image(
-                          pw.MemoryImage(snapshot.data!),
-                          width: 100,
-                          height: 100,
-                          fit: pw.BoxFit.cover,
-                        );
-                      } else {
-                        return pw.Container(
-                          width: 100,
-                          height: 100,
-                          color: PdfColors.grey200,
-                          child: pw.Center(
-                            child: pw.Text('Loading...'),
-                          ),
-                        );
-                      }
-                    },
+                  width: 100,
+                  height: 100,
+                  color: PdfColors.grey200,
+                  child: pw.Center(
+                    child: pw.Text('Photo'),
                   ),
                 ),
               ).toList(),
             ),
-        ],
-      ),
     );
   }
 

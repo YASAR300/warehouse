@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:warehouse_container_tracker/main.dart';
 import 'package:warehouse_container_tracker/models/container_model.dart';
 
 void main() {

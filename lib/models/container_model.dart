@@ -1,4 +1,5 @@
 /// Data models for the Warehouse Container Tracker app
+library;
 
 /// Container type enumeration
 enum ContainerType {

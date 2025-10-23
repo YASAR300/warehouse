@@ -21,7 +21,7 @@ class ContainerDetailScreen extends StatefulWidget {
 
 class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
   final TextEditingController _doorController = TextEditingController();
-  final List<MaterialType> _selectedMaterials = [];
+  final List<models.MaterialType> _selectedMaterials = [];
 
   @override
   void initState() {
@@ -113,7 +113,7 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
   }
 
   /// Build container info card
-  Widget _buildContainerInfoCard(ContainerModel container) {
+  Widget _buildContainerInfoCard(models.ContainerModel container) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -206,19 +206,19 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
   }
 
   /// Get container type icon
-  IconData _getContainerTypeIcon(ContainerType type) {
+  IconData _getContainerTypeIcon(models.ContainerType type) {
     switch (type) {
-      case ContainerType.import:
+      case models.ContainerType.import:
         return Icons.input;
-      case ContainerType.export:
+      case models.ContainerType.export:
         return Icons.output;
-      case ContainerType.delivery:
+      case models.ContainerType.delivery:
         return Icons.local_shipping;
     }
   }
 
   /// Build piece count section
-  Widget _buildPieceCountSection(ContainerModel container) {
+  Widget _buildPieceCountSection(models.ContainerModel container) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -268,7 +268,7 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
   }
 
   /// Build materials section
-  Widget _buildMaterialsSection(ContainerModel container) {
+  Widget _buildMaterialsSection(models.ContainerModel container) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -305,7 +305,7 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
   }
 
   /// Build discrepancies section
-  Widget _buildDiscrepanciesSection(ContainerModel container) {
+  Widget _buildDiscrepanciesSection(models.ContainerModel container) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -362,7 +362,7 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
   }
 
   /// Build photos section
-  Widget _buildPhotosSection(ContainerModel container) {
+  Widget _buildPhotosSection(models.ContainerModel container) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -475,7 +475,7 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
   }
 
   /// Build complete button
-  Widget _buildCompleteButton(ContainerModel container) {
+  Widget _buildCompleteButton(models.ContainerModel container) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -519,7 +519,7 @@ class _ContainerDetailScreenState extends State<ContainerDetailScreen> {
   }
 
   /// Show complete dialog
-  void _showCompleteDialog(ContainerModel container) {
+  void _showCompleteDialog(models.ContainerModel container) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

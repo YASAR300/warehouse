@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as path;
 
 /// Service for handling file uploads to Box.com
 class BoxStorageService {
