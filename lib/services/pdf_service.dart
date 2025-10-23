@@ -347,6 +347,8 @@ class PdfService {
                 ),
               ).toList(),
             ),
+        ],
+      ),
     );
   }
 
